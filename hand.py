@@ -56,7 +56,14 @@ options = vision.HandLandmarkerOptions(base_options=base_options,
                                        num_hands=2)
 detector = vision.HandLandmarker.create_from_options(options)
 image = mp.Image.create_from_file("image.jpg")
+# Convert image to numpy array and ensure it is 3-channel BGR
+image_np = image.numpy_view()
+if len(image_np.shape) == 2 or image_np.shape[2] == 1:
+    image_np = cv2.cvtColor(image_np, cv2.COLOR_GRAY2BGR)
+elif image_np.shape[2] == 4:
+    image_np = cv2.cvtColor(image_np, cv2.COLOR_BGRA2BGR)
+
 detection_result = detector.detect(image)
-annotated_image = draw_landmarks_on_image(image.numpy_view(), detection_result)
+annotated_image = draw_landmarks_on_image(image_np, detection_result)
 cv2.imwrite('annotated_image.jpg', annotated_image)
 #cv2.imshow(cv2.cvtColor(annotated_image, cv2.COLOR_RGB2BGR), 0)
